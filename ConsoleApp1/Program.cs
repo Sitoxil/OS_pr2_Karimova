@@ -50,10 +50,7 @@ namespace prak2
             if (!(File.Exists(name)))
             {
               FileStream fstream = new FileStream(name, FileMode.Create);
-              string[] SHA_file = {
-              "1115dd800feaacefdf481f1f9070374a2a81e27880f187396db67958b207cbad", Environment.NewLine,
-              "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b", Environment.NewLine,
-              "74e1bb62f8dabb8125a58852b63bdf6eaef667cb56ac7f7cdba6d7305c50a22f" };
+              string[] SHA_file = { "1115dd800feaacefdf481f1f9070374a2a81e27880f187396db67958b207cbad", Environment.NewLine, "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b", Environment.NewLine, "74e1bb62f8dabb8125a58852b63bdf6eaef667cb56ac7f7cdba6d7305c50a22f" };
               foreach (string text in SHA_file)
               {
                 byte[] array_file = System.Text.Encoding.Default.GetBytes(text);
@@ -68,12 +65,14 @@ namespace prak2
             fs.Read(array, 0, array.Length);
             copy = System.Text.Encoding.Default.GetString(array);
             for (int i = 0; i < 3; i++)
+            {
               SHA[i] = copy.Substring(66 * i, 64);
+            }
             return SHA;
           }
         default:
           {
-            string[] SHA = { "error" };
+            string[] SHA = { "" };
             Console.WriteLine("Ошибка!");
             return SHA;
           }
@@ -102,9 +101,13 @@ namespace prak2
       string password;
       char[] symbols = new char[5];
       for (int i = 0; i < c.tries; i++)
+      {
         for (int j = 97; (j <= 122); j++)
+        {
           for (int k = 97; (k <= 122); k++)
+          {
             for (int l = 97; (l <= 122); l++)
+            {
               for (int m = 97; (m <= 122); m++)
               {
                 symbols[0] = Convert.ToChar(97 + c.number + i * _count);
@@ -115,13 +118,19 @@ namespace prak2
                 password = new string(symbols);
                 hash = GetHash(SHA, password);
                 for (int h = 0; h < 3; h++)
+                {
                   if (SHA_all[h] == hash)
                   {
                     passwords_all[h] = password;
                     Console.WriteLine(password + "   Время: " + timer.ElapsedMilliseconds + " мс");
                   }
+                }
                 Thread.Sleep(0);
               }
+            }
+          }
+        }
+      }
     }
 
     public class Count
@@ -138,22 +147,22 @@ namespace prak2
       List<Count> c_th = new List<Count>();
       string[] SHA_all;
       SHA_all = SHA_read();
-      Console.WriteLine("Введите количество потоков(от 2 до 26):");
+      Console.WriteLine("Введите количество потоков(до 26):");
       _count = Int32.Parse(Console.ReadLine());
-      if (_count >= 2)
+      int key1 = 26 / _count, key2 = 26 % _count;
+      for (int a = 0; a < _count; a++)
       {
-        for (int a = 0; a < _count; a++)
+        threads.Add(new Thread(new ParameterizedThreadStart(GetPassword)));
+        c_th.Add(new Count());
+        c_th[a].SHA_all = SHA_all;
+        c_th[a].number = a;
+        if (key2 > 0)
         {
-          threads.Add(new Thread(new ParameterizedThreadStart(GetPassword)));
-          c_th.Add(new Count());
-          c_th[a].SHA_all = SHA_all;
-          c_th[a].number = a;
-          if (a < 26 - _count)
-            c_th[a].tries = 2;
-          else
-            c_th[a].tries = 1;
-          threads[a].Start(c_th[a]);
+          c_th[a].tries = key1 + 1;
+          key2--;
         }
+        else { c_th[a].tries = key1;}
+        threads[a].Start(c_th[a]);
       }
     }
   }
