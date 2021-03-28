@@ -98,7 +98,7 @@ namespace prak2
       string[] SHA_all = inf_tread.SHA_all;
       SHA256 SHA = SHA256.Create();
       string hash, password;
-      string[] passwords_all = { "", "", "" }; /////////////////////////////////////////////
+      string[] passwords_all = { "", "", "" };
       char[] symbols = new char[5];
       for (int i = 0; i < inf_tread.elements; i++)
       {
