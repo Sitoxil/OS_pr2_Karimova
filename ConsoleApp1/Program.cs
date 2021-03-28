@@ -11,14 +11,14 @@ namespace prak2
 {
   class Program
   {
-    static string[] passwords_all = { "", "", "" };
-    static int _count = 0;
+    
+    static int count = 0;
     static int Menu()
     {
       Console.WriteLine
       (
-        "1. Ввести SHA вручную.\n" +
-        "2. Считать SHA из файла."
+        "1. Ввести хэш-значения вручную.\n" +
+        "2. Считать хэш-значения из файла."
       );
       string s;
       s = Console.ReadLine();
@@ -39,7 +39,7 @@ namespace prak2
             string[] SHA = { "", "", "" };
             for (int i = 0; i < 3; i++)
             {
-              Console.WriteLine($"Введите SHA {i + 1}:");
+              Console.WriteLine($"Введите {i + 1} хэш-значение:");
               SHA[i] = Console.ReadLine();
             }
             return SHA;
@@ -94,13 +94,13 @@ namespace prak2
     {
       Stopwatch timer = new Stopwatch();
       timer.Start();
-      Count c = (Count)obj;
-      string[] SHA_all = c.SHA_all;
+      ThreadInfo inf_tread = (ThreadInfo)obj;
+      string[] SHA_all = inf_tread.SHA_all;
       SHA256 SHA = SHA256.Create();
-      string hash;
-      string password;
+      string hash, password;
+      string[] passwords_all = { "", "", "" }; /////////////////////////////////////////////
       char[] symbols = new char[5];
-      for (int i = 0; i < c.tries; i++)
+      for (int i = 0; i < inf_tread.elements; i++)
       {
         for (int j = 97; (j <= 122); j++)
         {
@@ -110,7 +110,7 @@ namespace prak2
             {
               for (int m = 97; (m <= 122); m++)
               {
-                symbols[0] = Convert.ToChar(97 + c.number + i * _count);
+                symbols[0] = Convert.ToChar(97 + inf_tread.number + i * count);
                 symbols[1] = Convert.ToChar(j);
                 symbols[2] = Convert.ToChar(k);
                 symbols[3] = Convert.ToChar(l);
@@ -133,36 +133,36 @@ namespace prak2
       }
     }
 
-    public class Count
+    public class ThreadInfo
     {
       public int number;
-      public int tries;
+      public int elements;
       public string[] SHA_all;
-      public Count() { }
+      public ThreadInfo() { }
     }
 
     static void Main()
     {
       List<Thread> threads = new List<Thread>();
-      List<Count> c_th = new List<Count>();
+      List<ThreadInfo> thrdinf = new List<ThreadInfo>();
       string[] SHA_all;
       SHA_all = SHA_read();
       Console.WriteLine("Введите количество потоков(до 26):");
-      _count = Int32.Parse(Console.ReadLine());
-      int key1 = 26 / _count, key2 = 26 % _count;
-      for (int a = 0; a < _count; a++)
+      count = Int32.Parse(Console.ReadLine());
+      int key1 = 26 / count, key2 = 26 % count;
+      for (int a = 0; a < count; a++)
       {
         threads.Add(new Thread(new ParameterizedThreadStart(GetPassword)));
-        c_th.Add(new Count());
-        c_th[a].SHA_all = SHA_all;
-        c_th[a].number = a;
+        thrdinf.Add(new ThreadInfo());
+        thrdinf[a].SHA_all = SHA_all;
+        thrdinf[a].number = a;
         if (key2 > 0)
         {
-          c_th[a].tries = key1 + 1;
+          thrdinf[a].elements = key1 + 1;
           key2--;
         }
-        else { c_th[a].tries = key1;}
-        threads[a].Start(c_th[a]);
+        else { thrdinf[a].elements = key1;}
+        threads[a].Start(thrdinf[a]);
       }
     }
   }
